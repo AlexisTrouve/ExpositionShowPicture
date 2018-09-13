@@ -21,10 +21,14 @@ public class PicShowSceneControler : MonoBehaviour
 {
     public InputField infieldRef;
     public GameObject[] pics;
+    public int numberStepTimer = 5;
+    public GameObject SidePanel;
+    public GameObject mainScreen;
+    public GameObject windowPrefab;
+
     private int _picIndex = 0;
     private ResourceLoader resources;
     private Dictionary<string, int> picLink;
-    public int numberStepTimer = 5;
     private int actualStepTimer = 5;
     private Step[] steps;
     private int IndexStep = 0;
@@ -141,5 +145,14 @@ public class PicShowSceneControler : MonoBehaviour
     public void clickNewPic(int index)
     {
         Debug.Log("pic " + index + " : " + pics[index].name + " = " + picLink[pics[index].name]);
+        GameObject go = Instantiate(windowPrefab, mainScreen.transform);
+        Image[] imgs = go.GetComponentsInChildren<Image>();
+        foreach (Image img in imgs)
+            if (img.name == "InternPicture")
+                img.sprite = resources._arraydatas[picLink[pics[index].name]].getSpriteIndex(0);
+        WindowButton winbtn = go.GetComponentInChildren<WindowButton>();
+        winbtn.sideMenu = SidePanel;
+        go.transform.SetAsLastSibling();
+        SidePanel.transform.SetAsLastSibling();
     }
 }
