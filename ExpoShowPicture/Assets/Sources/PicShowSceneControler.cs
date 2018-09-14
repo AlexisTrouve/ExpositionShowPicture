@@ -25,7 +25,10 @@ public class PicShowSceneControler : MonoBehaviour
     public GameObject SidePanel;
     public GameObject mainScreen;
     public GameObject windowPrefab;
+    public int maxPicShow = 30;
 
+    private GameObject[] picShow;
+    private int picShowIndex = 0;
     private int _picIndex = 0;
     private ResourceLoader resources;
     private Dictionary<string, int> picLink;
@@ -57,6 +60,9 @@ public class PicShowSceneControler : MonoBehaviour
                 picLink.Add(go.name, resources._arraydatas[0]._dataref);
         }
         rawUpdatePic();
+        picShow = new GameObject[maxPicShow];
+        for (i = 0; i < maxPicShow; i++)
+            picShow[i] = null;
     }
 
     // Update is called once per frame
@@ -144,7 +150,6 @@ public class PicShowSceneControler : MonoBehaviour
 
     public void clickNewPic(int index)
     {
-        Debug.Log("pic " + index + " : " + pics[index].name + " = " + picLink[pics[index].name]);
         GameObject go = Instantiate(windowPrefab, mainScreen.transform);
         Image[] imgs = go.GetComponentsInChildren<Image>();
         foreach (Image img in imgs)
@@ -154,5 +159,10 @@ public class PicShowSceneControler : MonoBehaviour
         winbtn.sideMenu = SidePanel;
         go.transform.SetAsLastSibling();
         SidePanel.transform.SetAsLastSibling();
+        if (picShow[picShowIndex] != null)
+            Destroy(picShow[picShowIndex]);
+        picShow[picShowIndex] = go;
+        ++picShowIndex;
+        picShowIndex = picShowIndex % maxPicShow;
     }
 }
