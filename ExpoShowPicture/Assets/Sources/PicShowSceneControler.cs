@@ -41,6 +41,7 @@ public class PicShowSceneControler : MonoBehaviour
     private int actualStepTimer = 5;
     private Step[] steps;
     private int IndexStep = 0;
+    private bool NextModeOnStep = true;
 
     // Use this for initialization
     void Start()
@@ -77,7 +78,7 @@ public class PicShowSceneControler : MonoBehaviour
     {
         if (actualStepTimer < numberStepTimer)
             softUpdatePic();
-        else if (actualStepTimer == numberStepTimer)
+        else if (actualStepTimer == numberStepTimer && NextModeOnStep == true)
         {
             ++IndexStep;
             if (IndexStep >= steps.Length)
@@ -86,15 +87,28 @@ public class PicShowSceneControler : MonoBehaviour
             ++actualStepTimer;
             ++_picIndex;
         }
+        else if (actualStepTimer == numberStepTimer && NextModeOnStep == false)
+        {
+            --IndexStep;
+            if (IndexStep < 0)
+                IndexStep = steps.Length - 1;
+            rawUpdatePic();
+            ++actualStepTimer;
+            --_picIndex;
+            if (_picIndex < 0)
+                _picIndex = resources._datas.Count - 1;
+        }
     }
 
     void softUpdatePic()
     {
         int stepIndex = IndexStep;
         int picIndex = 0;
-        int nextStepIndex = stepIndex + 1;
+        int nextStepIndex = stepIndex + ((NextModeOnStep == true) ? 1 : -1);
         if (nextStepIndex == steps.Length)
             nextStepIndex = 0;
+        else if (nextStepIndex < 0)
+            nextStepIndex = steps.Length - 1;
 
         do
         {
@@ -116,7 +130,9 @@ public class PicShowSceneControler : MonoBehaviour
             ++picIndex;
             if (stepIndex == steps.Length)
                 stepIndex = 0;
-            nextStepIndex = stepIndex + 1;
+            nextStepIndex = stepIndex + ((NextModeOnStep == true) ? 1 : -1);
+            if (nextStepIndex < 0)
+                nextStepIndex = steps.Length - 1;
             if (nextStepIndex == steps.Length)
                 nextStepIndex = 0;
         } while (stepIndex != IndexStep);
@@ -139,6 +155,10 @@ public class PicShowSceneControler : MonoBehaviour
             img.color = steps[stepIndex]._imgColor;
             if (stepIndex == 0)
                 picLink[pics[picIndex].name] = resources._arraydatas[(_picIndex + 4) % resources._datas.Count]._dataref;
+            else if (stepIndex == 6)
+            {
+                picLink[pics[picIndex].name] = resources._arraydatas[(((_picIndex - 2) < 0) ? picLink.Count - (_picIndex - 2) - 1 : _picIndex - 2) % resources._datas.Count]._dataref;
+            }
             img.sprite = resources._datas[picLink[pics[picIndex].name]].getSpriteIndex(0);
             if (stepIndex != 0 && stepIndex != steps.Length - 1)
                 pics[picIndex].transform.SetAsLastSibling();
@@ -152,6 +172,14 @@ public class PicShowSceneControler : MonoBehaviour
     public void nextStep()
     {
         rawUpdatePic();
+        NextModeOnStep = true;
+        actualStepTimer = 0;
+    }
+    
+    public void prevStep()
+    {
+        rawUpdatePic();
+        NextModeOnStep = false;
         actualStepTimer = 0;
     }
 
@@ -175,6 +203,8 @@ public class PicShowSceneControler : MonoBehaviour
 
     public void clickNewPic(int index)
     {
+        Debug.Log("pic id : " + picLink[pics[index].name]);
+
         if (resources._arraydatas[picLink[pics[index].name]]._datasub.Count == 1)
             createNewWindow(picLink[pics[index].name], 0);
         else
