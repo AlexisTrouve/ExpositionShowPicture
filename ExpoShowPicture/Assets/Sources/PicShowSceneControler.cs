@@ -27,6 +27,12 @@ public class PicShowSceneControler : MonoBehaviour
     public GameObject windowPrefab;
     public int maxPicShow = 30;
 
+    //subImgManager
+    public GameObject subImgPanel;
+    public GameObject[] subImgBtn;
+    private int ImgIndexSave;
+
+    //internData
     private GameObject[] picShow;
     private int picShowIndex = 0;
     private int _picIndex = 0;
@@ -63,6 +69,7 @@ public class PicShowSceneControler : MonoBehaviour
         picShow = new GameObject[maxPicShow];
         for (i = 0; i < maxPicShow; i++)
             picShow[i] = null;
+        hideSubImgPanel();
     }
 
     // Update is called once per frame
@@ -148,13 +155,13 @@ public class PicShowSceneControler : MonoBehaviour
         actualStepTimer = 0;
     }
 
-    public void clickNewPic(int index)
+    private void createNewWindow(int pictureIndex, int spriteIndex)
     {
         GameObject go = Instantiate(windowPrefab, mainScreen.transform);
         Image[] imgs = go.GetComponentsInChildren<Image>();
         foreach (Image img in imgs)
             if (img.name == "InternPicture")
-                img.sprite = resources._arraydatas[picLink[pics[index].name]].getSpriteIndex(0);
+                img.sprite = resources._arraydatas[pictureIndex].getSpriteIndex(spriteIndex);
         WindowButton winbtn = go.GetComponentInChildren<WindowButton>();
         winbtn.sideMenu = SidePanel;
         go.transform.SetAsLastSibling();
@@ -164,5 +171,55 @@ public class PicShowSceneControler : MonoBehaviour
         picShow[picShowIndex] = go;
         ++picShowIndex;
         picShowIndex = picShowIndex % maxPicShow;
+    }
+
+    public void clickNewPic(int index)
+    {
+        if (resources._arraydatas[picLink[pics[index].name]]._datasub.Count == 1)
+            createNewWindow(picLink[pics[index].name], 0);
+        else
+            showSubImgPanel(picLink[pics[index].name]);
+    }
+
+    public void showSubImgPanel(int id)
+    {
+        RectTransform panelRect = subImgPanel.GetComponent<RectTransform>();
+        panelRect.anchorMax = new Vector2(1, panelRect.anchorMax.y);
+        panelRect.offsetMax = new Vector2(0, 0);
+        ImgIndexSave = id;
+        int i = 0;
+        foreach (GameObject subImg in subImgBtn)
+        {
+            RectTransform btnRect = subImg.GetComponent<RectTransform>();
+            if (resources._arraydatas[id].getSpriteIndex(i) != null)
+            {
+                btnRect.sizeDelta = new Vector2(220, btnRect.sizeDelta.y);
+                Image img = subImg.GetComponent<Image>();
+                img.sprite = resources._arraydatas[id].getSpriteIndex(i);
+                Text txt = subImg.GetComponentInChildren<Text>();
+                txt.text = "" + i;
+            }
+            else
+                btnRect.sizeDelta = new Vector2(-1, btnRect.sizeDelta.y);
+            ++i;
+        }
+    }
+
+    public void hideSubImgPanel()
+    {
+        RectTransform panelRect = subImgPanel.GetComponent<RectTransform>();
+        panelRect.anchorMax = new Vector2(panelRect.anchorMin.x, panelRect.anchorMax.y);
+        panelRect.offsetMax = new Vector2(-1, 0);
+        foreach (GameObject subImg in subImgBtn)
+        {
+            RectTransform btnRect = subImg.GetComponent<RectTransform>();
+            btnRect.sizeDelta = new Vector2(-1, btnRect.sizeDelta.y);
+        }
+    }
+
+    public void clickSubImg(int index)
+    {
+        hideSubImgPanel();
+        createNewWindow(ImgIndexSave, index);
     }
 }
