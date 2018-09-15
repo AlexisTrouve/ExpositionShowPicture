@@ -30,14 +30,14 @@ public class PicShowSceneControler : MonoBehaviour
     //subImgManager
     public GameObject subImgPanel;
     public GameObject[] subImgBtn;
-    private int ImgIndexSave;
+    private string ImgIndexSave;
 
     //internData
     private GameObject[] picShow;
     private int picShowIndex = 0;
     private int _picIndex = 0;
     private ResourceLoader resources;
-    private Dictionary<string, int> picLink;
+    private Dictionary<string, string> picLink;
     private int actualStepTimer = 5;
     private Step[] steps;
     private int IndexStep = 0;
@@ -54,7 +54,7 @@ public class PicShowSceneControler : MonoBehaviour
         steps[4] = new Step(new Color32(255, 255, 255, 210), new Vector2(0.2f, 0.217f), new Vector2(0.8f, 0.397f));
         steps[5] = new Step(new Color32(255, 255, 255, 140), new Vector2(0.1f, 0.024f), new Vector2(0.7f, 0.203f));
         steps[6] = new Step(new Color32(255, 255, 255, 0), new Vector2(0.1f, 0.024f), new Vector2(0.7f, 0.203f));
-        picLink = new Dictionary<string, int>();
+        picLink = new Dictionary<string, string>();
         resources = new ResourceLoader();
         resources.load();
         int i = pics.Length - 2;
@@ -183,13 +183,13 @@ public class PicShowSceneControler : MonoBehaviour
         actualStepTimer = 0;
     }
 
-    private void createNewWindow(int pictureIndex, int spriteIndex)
+    private void createNewWindow(string pictureIndex, int spriteIndex)
     {
         GameObject go = Instantiate(windowPrefab, mainScreen.transform);
         Image[] imgs = go.GetComponentsInChildren<Image>();
         foreach (Image img in imgs)
             if (img.name == "InternPicture")
-                img.sprite = resources._arraydatas[pictureIndex].getSpriteIndex(spriteIndex);
+                img.sprite = resources._datas[pictureIndex].getSpriteIndex(spriteIndex);
         WindowButton winbtn = go.GetComponentInChildren<WindowButton>();
         winbtn.sideMenu = SidePanel;
         go.transform.SetAsLastSibling();
@@ -203,15 +203,13 @@ public class PicShowSceneControler : MonoBehaviour
 
     public void clickNewPic(int index)
     {
-        Debug.Log("pic id : " + picLink[pics[index].name]);
-
-        if (resources._arraydatas[picLink[pics[index].name]]._datasub.Count == 1)
+        if (resources._datas[picLink[pics[index].name]]._datasub.Count == 1)
             createNewWindow(picLink[pics[index].name], 0);
         else
             showSubImgPanel(picLink[pics[index].name]);
     }
 
-    public void showSubImgPanel(int id)
+    public void showSubImgPanel(string id)
     {
         RectTransform panelRect = subImgPanel.GetComponent<RectTransform>();
         panelRect.anchorMax = new Vector2(1, panelRect.anchorMax.y);
@@ -221,11 +219,11 @@ public class PicShowSceneControler : MonoBehaviour
         foreach (GameObject subImg in subImgBtn)
         {
             RectTransform btnRect = subImg.GetComponent<RectTransform>();
-            if (resources._arraydatas[id].getSpriteIndex(i) != null)
+            if (resources._datas[id].getSpriteIndex(i) != null)
             {
                 btnRect.sizeDelta = new Vector2(220, btnRect.sizeDelta.y);
                 Image img = subImg.GetComponent<Image>();
-                img.sprite = resources._arraydatas[id].getSpriteIndex(i);
+                img.sprite = resources._datas[id].getSpriteIndex(i);
                 Text txt = subImg.GetComponentInChildren<Text>();
                 txt.text = "" + i;
             }
