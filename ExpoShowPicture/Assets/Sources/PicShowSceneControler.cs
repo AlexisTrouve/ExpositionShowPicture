@@ -171,6 +171,8 @@ public class PicShowSceneControler : MonoBehaviour
 
     public void nextStep()
     {
+        Debug.Log("_picindex" + _picIndex);
+        Debug.Log("picShowIndex" + picShowIndex);
         rawUpdatePic();
         NextModeOnStep = true;
         actualStepTimer = 0;
@@ -249,5 +251,28 @@ public class PicShowSceneControler : MonoBehaviour
     {
         hideSubImgPanel();
         createNewWindow(ImgIndexSave, index);
+    }
+
+    public void SearchRef()
+    {
+        int i = 0;
+
+        foreach (KeyValuePair<string, picData> elem in resources._datas)
+        {
+            if (infieldRef.text == elem.Key)
+            {
+                _picIndex = i;
+                i = i - 2;
+                foreach (GameObject pic in pics)
+                {
+                    picLink[pic.name] = resources._arraydatas[i]._dataref;
+                    ++i;
+                }
+                rawUpdatePic();
+                infieldRef.text = "";
+                return;
+            }
+            ++i;
+        }
     }
 }
