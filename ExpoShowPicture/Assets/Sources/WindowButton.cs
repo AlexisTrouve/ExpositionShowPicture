@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class WindowButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+public class WindowButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
 
     public GameObject window;
@@ -63,9 +63,5 @@ public class WindowButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
         window.transform.SetAsLastSibling();
         sideMenu.transform.SetAsLastSibling();
         selected = true;
-    }
-
-    void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
-    {
     }
 }

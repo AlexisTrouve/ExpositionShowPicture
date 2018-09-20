@@ -52,11 +52,19 @@ public class ResourceLoader
 {
     public Dictionary<string, picData> _datas;
     public picData[] _arraydatas;
+    public Sprite BackTopPic;
+    public Sprite SidePanelTopPic;
 
     public void load()
     {
+        loadImgData();
+        loadCompanyPics();
+    }
+
+    public void loadImgData()
+    {
         _datas = new Dictionary<string, picData>();
-        var ImgData = new DirectoryInfo("ImgData");
+        var ImgData = new DirectoryInfo("Resources/ImgData");
         var Datas = ImgData.GetDirectories();
         foreach (var data in Datas)
         {
@@ -79,5 +87,25 @@ public class ResourceLoader
             _arraydatas[i] = data.Value;
             ++i;
         }
+    }
+
+    public void loadImgZoom()
+    {
+
+    }
+
+    public void loadCompanyPics()
+    {
+        byte[] fileData;
+
+        fileData = File.ReadAllBytes("Resources/CompanyPics/BackTop.jpg");
+        Texture2D texture = new Texture2D(2, 2);
+        texture.LoadImage(fileData);
+        BackTopPic = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero, 1);
+
+        fileData = File.ReadAllBytes("Resources/CompanyPics/SidePanelTop.jpg");
+        texture = new Texture2D(2, 2);
+        texture.LoadImage(fileData);
+        SidePanelTopPic = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero, 1);
     }
 }

@@ -43,6 +43,10 @@ public class PicShowSceneControler : MonoBehaviour
     private int IndexStep = 0;
     private bool NextModeOnStep = true;
 
+    //companyPics
+    public GameObject PicSidePanelTop;
+    public GameObject PicBackgroundTop;
+
     // Use this for initialization
     void Start()
     {
@@ -71,6 +75,10 @@ public class PicShowSceneControler : MonoBehaviour
         for (i = 0; i < maxPicShow; i++)
             picShow[i] = null;
         hideSubImgPanel();
+        Image backImg = PicBackgroundTop.GetComponent<Image>();
+        backImg.sprite = resources.BackTopPic;
+        Image sideImg = PicSidePanelTop.GetComponent<Image>();
+        sideImg.sprite = resources.SidePanelTopPic;
     }
 
     // Update is called once per frame
