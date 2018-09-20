@@ -3,15 +3,27 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
+public class showPic
+{
+    public Sprite _normalImg;
+    public Sprite _zoomImg;
+
+    public showPic(Sprite normalImg)
+    {
+        _normalImg = normalImg;
+        _zoomImg = null;
+    }
+}
+
 public struct picData
 {
     public string _dataref;
-    public Dictionary<string, Sprite> _datasub;
+    public Dictionary<string, showPic> _datasub;
 
     public picData(string dataref, string datasubref, string spriteFileName)
     {
         _dataref = dataref;
-        _datasub = new Dictionary<string, Sprite>();
+        _datasub = new Dictionary<string, showPic>();
         if (File.Exists(spriteFileName))
         {
             byte[] fileData;
@@ -19,11 +31,11 @@ public struct picData
             fileData = File.ReadAllBytes(spriteFileName);
             Texture2D texture = new Texture2D(2, 2);
             texture.LoadImage(fileData);
-            _datasub.Add(datasubref, Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero, 1));
+            _datasub.Add(datasubref, new showPic(Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero, 1)));
         }
     }
 
-    public void addataSub(string subref, string spriteFileName)
+    public void addZoomPic(string subref, string spriteFileName)
     {
         if (File.Exists(spriteFileName))
         {
@@ -32,13 +44,26 @@ public struct picData
             fileData = File.ReadAllBytes(spriteFileName);
             Texture2D texture = new Texture2D(2, 2);
             texture.LoadImage(fileData);
-            _datasub.Add(subref, Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero, 1));
+            _datasub[subref]._zoomImg = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero, 1);
         }
     }
 
-    public Sprite getSpriteIndex(int index)
+    public void adddataSub(string subref, string spriteFileName)
     {
-        foreach (KeyValuePair<string, Sprite> elem in _datasub)
+        if (File.Exists(spriteFileName))
+        {
+            byte[] fileData;
+
+            fileData = File.ReadAllBytes(spriteFileName);
+            Texture2D texture = new Texture2D(2, 2);
+            texture.LoadImage(fileData);
+            _datasub.Add(subref, new showPic(Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero, 1)));
+        }
+    }
+
+    public showPic getshowPicIndex(int index)
+    {
+        foreach (KeyValuePair<string, showPic> elem in _datasub)
         {
             if (index <= 0)
                 return (elem.Value);
@@ -58,6 +83,7 @@ public class ResourceLoader
     public void load()
     {
         loadImgData();
+        loadImgZoom();
         loadCompanyPics();
     }
 
@@ -76,7 +102,7 @@ public class ResourceLoader
                 if (j == 0)
                     _datas.Add(data.Name, new picData(data.Name, sub.Name, sub.FullName));
                 else
-                    _datas[data.Name].addataSub(sub.Name, sub.FullName);
+                    _datas[data.Name].adddataSub(sub.Name, sub.FullName);
                 ++j;
             }
         }
@@ -91,7 +117,16 @@ public class ResourceLoader
 
     public void loadImgZoom()
     {
-
+        var ImgData = new DirectoryInfo("Resources/ImgZoom");
+        var Datas = ImgData.GetDirectories();
+        foreach (var data in Datas)
+        {
+            var catData = new DirectoryInfo(data.FullName);
+            var Subs = catData.GetFiles();
+            foreach (var sub in Subs)
+                if (_datas.ContainsKey(data.Name) == true)
+                    _datas[data.Name].addZoomPic(sub.Name, sub.FullName);
+        }
     }
 
     public void loadCompanyPics()

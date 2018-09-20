@@ -167,7 +167,7 @@ public class PicShowSceneControler : MonoBehaviour
             {
                 picLink[pics[picIndex].name] = resources._arraydatas[(((_picIndex - 2) < 0) ? picLink.Count - (_picIndex - 2) - 1 : _picIndex - 2) % resources._datas.Count]._dataref;
             }
-            img.sprite = resources._datas[picLink[pics[picIndex].name]].getSpriteIndex(0);
+            img.sprite = resources._datas[picLink[pics[picIndex].name]].getshowPicIndex(0)._normalImg;
             if (stepIndex != 0 && stepIndex != steps.Length - 1)
                 pics[picIndex].transform.SetAsLastSibling();
             ++stepIndex;
@@ -199,9 +199,12 @@ public class PicShowSceneControler : MonoBehaviour
         Image[] imgs = go.GetComponentsInChildren<Image>();
         foreach (Image img in imgs)
             if (img.name == "InternPicture")
-                img.sprite = resources._datas[pictureIndex].getSpriteIndex(spriteIndex);
+                img.sprite = resources._datas[pictureIndex].getshowPicIndex(spriteIndex)._normalImg;
         WindowButton winbtn = go.GetComponentInChildren<WindowButton>();
         winbtn.sideMenu = SidePanel;
+        winbtn.controler = this;
+        winbtn.idPic = pictureIndex;
+        winbtn.subIndex = spriteIndex;
         go.transform.SetAsLastSibling();
         SidePanel.transform.SetAsLastSibling();
         if (picShow[picShowIndex] != null)
@@ -209,6 +212,11 @@ public class PicShowSceneControler : MonoBehaviour
         picShow[picShowIndex] = go;
         ++picShowIndex;
         picShowIndex = picShowIndex % maxPicShow;
+    }
+
+    public ResourceLoader getResources()
+    {
+        return (resources);
     }
 
     public void clickNewPic(int index)
@@ -229,11 +237,11 @@ public class PicShowSceneControler : MonoBehaviour
         foreach (GameObject subImg in subImgBtn)
         {
             RectTransform btnRect = subImg.GetComponent<RectTransform>();
-            if (resources._datas[id].getSpriteIndex(i) != null)
+            if (resources._datas[id].getshowPicIndex(i) != null)
             {
                 btnRect.sizeDelta = new Vector2(220, btnRect.sizeDelta.y);
                 Image img = subImg.GetComponent<Image>();
-                img.sprite = resources._datas[id].getSpriteIndex(i);
+                img.sprite = resources._datas[id].getshowPicIndex(i)._normalImg;
                 Text txt = subImg.GetComponentInChildren<Text>();
                 txt.text = "" + i;
             }

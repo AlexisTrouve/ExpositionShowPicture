@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class WindowButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-
+    public string idPic;
+    public int subIndex;
+    public PicShowSceneControler controler;
     public GameObject window;
     public GameObject sideMenu;
     bool selected = false;
@@ -43,11 +46,24 @@ public class WindowButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
             rect.anchorMax = new Vector2(0.5f, 0.5f);
             if (MaxMode == true)
             {
+                Image[] imgs = GetComponentsInChildren<Image>();
+                foreach (Image img in imgs)
+                    if (img.name == "InternPicture")
+                    {
+                        if (controler.getResources()._datas[idPic].getshowPicIndex(subIndex)._zoomImg != null)
+                            img.sprite = controler.getResources()._datas[idPic].getshowPicIndex(subIndex)._zoomImg;
+                        /*else
+                            img.sprite = controler.getResources()._datas[idPic].getshowPicIndex(subIndex)._normalImg;*/
+                    }
                 rect.sizeDelta = new Vector2(1000, 1000);
                 rect.localPosition = new Vector2(0, 0);
             }
             else
             {
+                Image[] imgs = GetComponentsInChildren<Image>();
+                foreach (Image img in imgs)
+                    if (img.name == "InternPicture")
+                        img.sprite = controler.getResources()._datas[idPic].getshowPicIndex(subIndex)._normalImg;
                 rect.sizeDelta = new Vector2(400, 400);
                 rect.localPosition = new Vector2(0, 0);
             }
