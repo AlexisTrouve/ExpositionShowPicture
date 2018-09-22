@@ -17,6 +17,18 @@ public struct Step
     }
 }
 
+public class anchorPos
+{
+    public Vector2 _anchorMin;
+    public Vector2 _anchorMax;
+
+    public anchorPos(Vector2 anchorMin, Vector2 anchorMax)
+    {
+        _anchorMin = anchorMin;
+        _anchorMax = anchorMax;
+    }
+}
+
 public class PicShowSceneControler : MonoBehaviour
 {
     public InputField infieldRef;
@@ -24,6 +36,7 @@ public class PicShowSceneControler : MonoBehaviour
     public int numberStepTimer = 5;
     public GameObject SidePanel;
     public GameObject mainScreen;
+    public RectTransform canvasrecttrans;
     public GameObject windowPrefab;
     public int maxPicShow = 30;
 
@@ -47,9 +60,32 @@ public class PicShowSceneControler : MonoBehaviour
     public GameObject PicSidePanelTop;
     public GameObject PicBackgroundTop;
 
+    //prepos
+    private anchorPos[] ImgPrePos;
+    private int preposIndex;
+
     // Use this for initialization
     void Start()
     {
+        preposIndex = 0;
+        ImgPrePos = new anchorPos[15];
+        ImgPrePos[0] = new anchorPos(new Vector2(0.04f, 0.612f), new Vector2(0.202f, 0.9f));
+        ImgPrePos[1] = new anchorPos(new Vector2(0.202f, 0.612f), new Vector2(0.364f, 0.9f));
+        ImgPrePos[2] = new anchorPos(new Vector2(0.364f, 0.612f), new Vector2(0.526f, 0.9f));
+        ImgPrePos[3] = new anchorPos(new Vector2(0.526f, 0.612f), new Vector2(0.688f, 0.9f));
+        ImgPrePos[4] = new anchorPos(new Vector2(0.688f, 0.612f), new Vector2(0.85f, 0.9f));
+
+        ImgPrePos[5] = new anchorPos(new Vector2(0.04f, 0.324f), new Vector2(0.202f, 0.612f));
+        ImgPrePos[6] = new anchorPos(new Vector2(0.202f, 0.324f), new Vector2(0.364f, 0.612f));
+        ImgPrePos[7] = new anchorPos(new Vector2(0.364f, 0.324f), new Vector2(0.526f, 0.612f));
+        ImgPrePos[8] = new anchorPos(new Vector2(0.526f, 0.324f), new Vector2(0.688f, 0.612f));
+        ImgPrePos[9] = new anchorPos(new Vector2(0.688f, 0.324f), new Vector2(0.85f, 0.612f));
+
+        ImgPrePos[10] = new anchorPos(new Vector2(0.04f, 0.036f), new Vector2(0.202f, 0.324f));
+        ImgPrePos[11] = new anchorPos(new Vector2(0.202f, 0.036f), new Vector2(0.364f, 0.324f));
+        ImgPrePos[12] = new anchorPos(new Vector2(0.364f, 0.036f), new Vector2(0.526f, 0.324f));
+        ImgPrePos[13] = new anchorPos(new Vector2(0.526f, 0.036f), new Vector2(0.688f, 0.324f));
+        ImgPrePos[14] = new anchorPos(new Vector2(0.688f, 0.036f), new Vector2(0.85f, 0.324f));
         steps = new Step[7];
         steps[0] = new Step(new Color32(255, 255, 255, 0), new Vector2(0.1f, 0.797f), new Vector2(0.7f, 0.976f));
         steps[1] = new Step(new Color32(255, 255, 255, 140), new Vector2(0.1f, 0.797f), new Vector2(0.7f, 0.976f));
@@ -196,12 +232,17 @@ public class PicShowSceneControler : MonoBehaviour
     private void createNewWindow(string pictureIndex, int spriteIndex)
     {
         GameObject go = Instantiate(windowPrefab, mainScreen.transform);
+        RectTransform rect = go.GetComponent<RectTransform>();
+        rect.localPosition = Vector2.zero;
+        rect.anchorMin = ImgPrePos[preposIndex]._anchorMin;
+        rect.anchorMax = ImgPrePos[preposIndex]._anchorMax;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
         Image[] imgs = go.GetComponentsInChildren<Image>();
         foreach (Image img in imgs)
             if (img.name == "InternPicture")
                 img.sprite = resources._datas[pictureIndex].getshowPicIndex(spriteIndex)._normalImg;
         WindowButton winbtn = go.GetComponentInChildren<WindowButton>();
-        winbtn.sideMenu = SidePanel;
         winbtn.controler = this;
         winbtn.idPic = pictureIndex;
         winbtn.subIndex = spriteIndex;
@@ -212,6 +253,19 @@ public class PicShowSceneControler : MonoBehaviour
         picShow[picShowIndex] = go;
         ++picShowIndex;
         picShowIndex = picShowIndex % maxPicShow;
+        ++preposIndex;
+        preposIndex = preposIndex % ImgPrePos.Length;
+    }
+
+    public void createAllSubWin()
+    {
+        int i = 0;
+
+        foreach (KeyValuePair<string, showPic> elem in resources._datas[ImgIndexSave]._datasub)
+        {
+            createNewWindow(ImgIndexSave, i);
+            ++i;
+        }
     }
 
     public ResourceLoader getResources()
@@ -239,14 +293,18 @@ public class PicShowSceneControler : MonoBehaviour
             RectTransform btnRect = subImg.GetComponent<RectTransform>();
             if (resources._datas[id].getshowPicIndex(i) != null)
             {
-                btnRect.sizeDelta = new Vector2(220, btnRect.sizeDelta.y);
+                btnRect.anchorMax = new Vector2(btnRect.anchorMin.x + 0.16f, btnRect.anchorMax.y);
+                btnRect.offsetMax = new Vector2(0, 0);
                 Image img = subImg.GetComponent<Image>();
                 img.sprite = resources._datas[id].getshowPicIndex(i)._normalImg;
                 Text txt = subImg.GetComponentInChildren<Text>();
                 txt.text = "" + i;
             }
             else
-                btnRect.sizeDelta = new Vector2(-1, btnRect.sizeDelta.y);
+            {
+                btnRect.anchorMax = new Vector2(btnRect.anchorMin.x, btnRect.anchorMax.y);
+                btnRect.offsetMax = new Vector2(-1, 0);
+            }
             ++i;
         }
     }

@@ -10,17 +10,13 @@ public class WindowButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
     public int subIndex;
     public PicShowSceneControler controler;
     public GameObject window;
-    public GameObject sideMenu;
     bool selected = false;
     int timer = 0;
     bool MaxMode = false;
+    anchorPos savePos = null;
 
     private void Start()
     {
-        RectTransform rect = window.GetComponent<RectTransform>();
-        rect.anchorMin = new Vector2(0.5f, 0.5f);
-        rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.localPosition = new Vector2(rect.localPosition.x, rect.localPosition.y);
     }
 
     // Update is called once per frame
@@ -29,9 +25,9 @@ public class WindowButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
         if (selected == true && MaxMode == false)
         {
             RectTransform rect = window.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.5f, 0.5f);
-            rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.localPosition = new Vector2(rect.localPosition.x + (Input.GetAxis("Mouse X") * 22.5f), rect.localPosition.y + (Input.GetAxis("Mouse Y") * 22.5f));
+            Vector2 tmpdiffPos = new Vector2((Input.GetAxis("Mouse X") * 15),(Input.GetAxis("Mouse Y") * 15));
+            rect.anchorMin = new Vector2(rect.anchorMin.x + tmpdiffPos.x / controler.canvasrecttrans.sizeDelta.x, rect.anchorMin.y + tmpdiffPos.y / controler.canvasrecttrans.sizeDelta.y);
+            rect.anchorMax = new Vector2(rect.anchorMax.x + tmpdiffPos.x / controler.canvasrecttrans.sizeDelta.x, rect.anchorMax.y + tmpdiffPos.y / controler.canvasrecttrans.sizeDelta.y);
         }
         ++timer;
     }
@@ -42,8 +38,6 @@ public class WindowButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
         {
             MaxMode = !MaxMode;
             RectTransform rect = window.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0.5f, 0.5f);
-            rect.anchorMax = new Vector2(0.5f, 0.5f);
             if (MaxMode == true)
             {
                 Image[] imgs = GetComponentsInChildren<Image>();
@@ -55,8 +49,11 @@ public class WindowButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
                         /*else
                             img.sprite = controler.getResources()._datas[idPic].getshowPicIndex(subIndex)._normalImg;*/
                     }
-                rect.sizeDelta = new Vector2(1000, 1000);
-                rect.localPosition = new Vector2(0, 0);
+                savePos = new anchorPos(rect.anchorMin, rect.anchorMax);
+                rect.anchorMin = new Vector2(0.1798f, 0.014f);
+                rect.anchorMax = new Vector2(0.671f, 0.887f);
+                rect.offsetMin = Vector2.zero;
+                rect.offsetMax = Vector2.zero;
             }
             else
             {
@@ -64,8 +61,11 @@ public class WindowButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
                 foreach (Image img in imgs)
                     if (img.name == "InternPicture")
                         img.sprite = controler.getResources()._datas[idPic].getshowPicIndex(subIndex)._normalImg;
-                rect.sizeDelta = new Vector2(400, 400);
-                rect.localPosition = new Vector2(0, 0);
+                rect.anchorMin = savePos._anchorMin;
+                rect.anchorMax = savePos._anchorMax;
+                rect.offsetMin = Vector2.zero;
+                rect.offsetMax = Vector2.zero;
+                savePos = null;
             }
             timer = 15;
         }
@@ -77,7 +77,8 @@ public class WindowButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
     void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
     {
         window.transform.SetAsLastSibling();
-        sideMenu.transform.SetAsLastSibling();
+        controler.SidePanel.transform.SetAsLastSibling();
+        controler.PicBackgroundTop.transform.SetAsLastSibling();
         selected = true;
     }
 }
